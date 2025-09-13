@@ -1,0 +1,86 @@
+/* visualising*/
+SELECT * FROM netflixd;
+/*Creating another in table in the img of the first
+CREATE table netflix LIKE netflixd;
+INSERT into netflix
+SELECT * FROM netflixd;*/
+/*missing values*/
+SELECT 
+ COUNT(*) FILTER (WHERE show_id IS NULL) AS null_show_id,
+  COUNT(*) FILTER (WHERE type IS NULL OR type = '') AS null_type,
+  COUNT(*) FILTER (WHERE title IS NULL OR title = '') AS null_title,
+  COUNT(*) FILTER (WHERE director IS NULL OR director = '') AS null_director,
+  COUNT(*) FILTER (WHERE country IS NULL OR country = '') AS null_country,
+  COUNT(*) FILTER (WHERE date_added IS NULL OR date_added = '') AS null_date_added,
+  COUNT(*) FILTER (WHERE release_year IS NULL) AS null_release_year,
+  COUNT(*) FILTER (WHERE rating IS NULL OR rating = '') AS null_rating,
+  COUNT(*) FILTER (WHERE duration IS NULL OR duration = '') AS null_duration,
+  COUNT(*) FILTER (WHERE listed_in IS NULL OR listed_in = '') AS null_listed_in
+FROM netflixd;
+/*missing names*/
+UPDATE netflixd
+SET director = 'Not Given'
+WHERE director IS NULL OR director = '';
+/*missing country name(contries)*/
+UPDATE netflixd
+SET country = 'Not Given'
+WHERE country IS NULL OR country = '';
+/*Replace missing rating*/
+UPDATE netflixd
+SET rating = 'Not Rated'
+WHERE rating IS NULL OR rating = '';
+/*Normalisation*/
+CREATE TABLE Shows 
+(
+  show_id VARCHAR(115) PRIMARY KEY,
+  type VARCHAR(21),
+   title VARCHAR(250),
+  date_added DATE,
+  release_year INT,
+  rating VARCHAR(20),
+  duration_minutes INT,
+  seasons INT
+);
+CREATE TABLE Directors 
+(
+  director_id INT PRIMARY KEY,
+  director_name VARCHAR(250) UNIQUE
+);
+
+CREATE TABLE Countries 
+(
+  country_id INT PRIMARY KEY,
+  country_name VARCHAR(250) UNIQUE
+);
+
+CREATE TABLE Genres 
+(
+  genre_id INT PRIMARY KEY,
+  genre_name VARCHAR(250) UNIQUE
+);
+CREATE TABLE Show_Director 
+(
+    show_id VARCHAR(10),
+    director_id INT,
+    PRIMARY KEY (show_id, director_id),
+    FOREIGN KEY (show_id) REFERENCES Shows(show_id),
+    FOREIGN KEY (director_id) REFERENCES Directors(director_id)
+);
+
+CREATE TABLE Show_Country 
+(
+  show_id VARCHAR(10),
+  country_id INT,
+  PRIMARY KEY (show_id, country_id),
+  FOREIGN KEY (show_id) REFERENCES Shows(show_id),
+  FOREIGN KEY (country_id) REFERENCES Countries(country_id)
+);
+
+CREATE TABLE Show_Genre 
+(
+  show_id VARCHAR(10),
+  genre_id INT,
+  PRIMARY KEY (show_id, genre_id),
+  FOREIGN KEY (show_id) REFERENCES Shows(show_id),
+  FOREIGN KEY (genre_id) REFERENCES Genres(genre_id)
+);
